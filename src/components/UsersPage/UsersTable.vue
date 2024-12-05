@@ -1,4 +1,26 @@
 <template>
+  <button class="button_add"  @click="showModal = true">Добавить пользователя</button>
+  <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <h3>Добавить пользователя</h3>
+        <form @submit.prevent="addUser">
+          <div>
+            <label for="name">Имя:</label>
+            <input type="text" id="name" v-model="newUser.name" required />
+          </div>
+          <div>
+            <label for="email">Почта:</label>
+            <input type="email" id="email" v-model="newUser.email" required />
+          </div>
+          <div>
+            <label for="avatar">Аватар (URL):</label>
+            <input type="url" id="avatar" v-model="newUser.avatar" />
+          </div>
+          <button type="submit" class="button_save">Сохранить</button>
+          <button type="button" class="button_cancel" @click="showModal = false">Отмена</button>
+        </form>
+      </div>
+    </div>
   <div class="users-table">
     <div class="users-table__row">
       <div class="users-table__cell">id</div>
@@ -6,6 +28,8 @@
       <div class="users-table__cell">Почта</div>
       <div class="users-table__cell">Дата создания</div>
       <div class="users-table__cell">Аватар</div>
+      <div class="users-table__cell"></div>
+      <div class="users-table__cell"></div>
     </div>
     <div v-for="user in users" :key="user.id" class="users-table__row">
       <div class="users-table__cell">{{ user.id }}</div>
@@ -14,6 +38,12 @@
       <div class="users-table__cell">{{ user.created }}</div>
       <div class="users-table__cell">
         <img :src="user.avatar" alt="Аватар" class="user-avatar" />
+      </div>
+      <div class="users-table__cell">
+        <button class="button_delete">удалить</button>
+      </div>
+      <div class="users-table__cell">
+        <button class="button_edit">редактировать</button>
       </div>
     </div>
   </div>
@@ -33,7 +63,7 @@ type UserType = {
 const currentDate = new Date()
 
 const createdMockDate = computed(() => {
-  return `${currentDate.getDate()}.${currentDate.getMonth() + 1}.${currentDate.getFullYear()}`
+  return `${currentDate.getDate()}.${currentDate.getMonth()}.${currentDate.getFullYear()}`
 })
 
 const users = ref<UserType[]>([
@@ -73,29 +103,153 @@ const users = ref<UserType[]>([
     avatar: 'https://vet-centre.by/wp-content/uploads/2016/11/kot-eti-udivitelnye-kotiki.jpg'
   }
 ])
+const showModal = ref(false)
+
+const newUser = ref<UserType>({
+  id: 0,
+  name: '',
+  email: '',
+  avatar: ''
+})
+
+const addUser = () => {
+  const nextId = users.value.length > 0 ? users.value[users.value.length - 1].id + 1 : 1
+  users.value.push({ ...newUser.value, id: nextId })
+  newUser.value = { id: 0, name: '', email: '', avatar: '' }
+  showModal.value = false
+}
 </script>
-  
-  <style scoped>
-  .users-table {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .users-table__row {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-  }
-  
-  .users-table__cell {
-    min-width: 120px;
-    background-color: #d8d3d3;
-    border: 3px solid rgb(41, 31, 39);
-    text-align: center;
-    padding: 80px;
-  }
-  .user-avatar {
-  width: 200px;
-  height: 200px;
+
+<style scoped>
+.users-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.users-table__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.button_edit {
+  background-color: rgb(42, 75, 165);
+  color: #d8d3d3;
+  padding: 12px 20px;
+  width: 150px;
+  border: none;
+  border-radius: 5px;
+}
+
+.button_edit:hover {
+  background-color: rgb(6, 7, 95);
+}
+
+.button_delete {
+  background-color: brown;
+  color: #d8d3d3;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+
+}
+
+.button_delete:hover {
+  background-color: rgb(95, 6, 6);
+}
+
+.button_add {
+  background-color: rgb(112, 165, 42);
+  color: #d8d3d3;
+  padding: 12px 20px;
+  width: 150px;
+  border: none;
+  border-radius: 5px;
+}
+
+.button_add:hover {
+  background-color: rgb(34, 95, 6);
+}
+
+.users-table__cell {
+  min-width: 80px;
+  background-color: #e8eef1;
+  border: 1px solid rgb(41, 31, 39);
+  text-align: center;
+  padding: 10px;
+}
+
+.user-avatar {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
 }
-  </style>
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button_save {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.button_save:hover {
+  background-color: #45a049;
+}
+
+.button_cancel {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button_cancel:hover {
+  background-color: #e53935;
+}
+</style>
