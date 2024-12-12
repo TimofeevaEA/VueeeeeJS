@@ -47,6 +47,7 @@
       </div>
     </div>
   </div>
+  <button><a href="/src/components/Login/Login.vue">Выход</a></button>
 </template>
 
 <script setup lang="ts">
@@ -118,6 +119,7 @@ const addUser = () => {
   newUser.value = { id: 0, name: '', email: '', avatar: '' }
   showModal.value = false
 }
+
 </script>
 
 <style scoped>
